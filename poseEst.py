@@ -21,6 +21,11 @@ param_markers = aruco.DetectorParameters_create()
 
 cap = cv.VideoCapture(0)
 
+## comprimindo a captura
+# cap.set(3, 640)
+# cap.set(4, 360)
+# cap.set(cv.CAP_PROP_FOURCC, cv.VideoWriter_fourcc('M', 'J', 'P', 'G'))
+
 while True:
     ret, frame = cap.read()
     if not ret:
