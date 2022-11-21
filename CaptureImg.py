@@ -26,8 +26,8 @@ else:
 
 cap = cv2.VideoCapture(0)
 ## comprimindo a captura
-cap.set(3, 520)
-cap.set(4, 390)
+cap.set(3, 400)
+cap.set(4, 300)
 cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
 
 

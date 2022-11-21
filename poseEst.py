@@ -22,8 +22,8 @@ param_markers = aruco.DetectorParameters_create()
 cap = cv.VideoCapture(0)
 
 ## comprimindo a captura
-cap.set(3, 520)
-cap.set(4, 390)
+cap.set(3, 400)
+cap.set(4, 300)
 cap.set(cv.CAP_PROP_FOURCC, cv.VideoWriter_fourcc('M', 'J', 'P', 'G'))
 
 while True:

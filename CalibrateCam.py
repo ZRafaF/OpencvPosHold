@@ -64,9 +64,10 @@ img_points_2D = []  # 2d points in image plane.
 
 def detect_checker_board(image, grayImage, criteria, boardDimension):
     ret, corners = cv2.findChessboardCorners(grayImage, boardDimension)
-    if ret == True:
-        corners1 = cv2.cornerSubPix(grayImage, corners, (3, 3), (-1, -1), criteria)
-        image = cv2.drawChessboardCorners(image, boardDimension, corners1, ret)
+    if ret == False:
+        return False, False, False
+    corners1 = cv2.cornerSubPix(grayImage, corners, (3, 3), (-1, -1), criteria)
+    image = cv2.drawChessboardCorners(image, boardDimension, corners1, ret)
 
     return image, ret, corners1
 
@@ -75,17 +76,16 @@ for imageIt in images:
     cv2.destroyAllWindows()
     frame = cv2.imread(imageIt)
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    image, board_detected, corners1 = detect_checker_board(frame, gray, criteria, CHESS_BOARD_DIM)
+    image, board_detected, corners_detected = detect_checker_board(frame, gray, criteria, CHESS_BOARD_DIM)
 
     cv2.imshow(f"{imageIt}",frame)
     key = cv2.waitKey(0)
     if(key == ord("s") and board_detected):
         obj_points_3D.append(obj_3D)
-        img_points_2D.append(corners1)
+        img_points_2D.append(corners_detected)
         print("Imagen salva")
-    else:
+    elif(key == ord("d")):
         print("Imagen descartada")
-    
 
 
 
