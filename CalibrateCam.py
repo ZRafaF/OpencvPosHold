@@ -11,7 +11,7 @@ print("Opencv version: ",cv2.__version__)
 
 # Dimensão do tabuleiro
 CHESS_BOARD_DIM = (9, 6)
-SQUARE_SIZE = 25 #- mm
+SQUARE_SIZE = 26 #- mm
 
 
 
