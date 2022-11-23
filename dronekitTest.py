@@ -8,12 +8,12 @@ import math
 import argparse
 
 def connectMyCopter():
-	parser = argparse.ArgumentParser(description='comands')
-	parser.add_argument("--connect")
-	args = parser.parse_args()
-	connection_string = args.connect
+	#parser = argparse.ArgumentParser(description='comands')
+	#parser.add_argument("--connect")
+	#args = parser.parse_args()
+	#connection_string = args.connect
 	baud_rate = 57600
-
+	connection_string = "/dev/ttyAMA0"
 	print(connection_string)
 
 	vehicle = connect(connection_string, baud=baud_rate,wait_ready=True)
