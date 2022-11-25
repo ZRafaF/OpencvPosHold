@@ -9,8 +9,9 @@ def connectMyCopter():
 	connection_string = "/dev/ttyAMA0"
 	print(connection_string)
 
-	vehicle = connect(connection_string, baud=baud_rate,wait_ready=True)
+	#vehicle = connect(connection_string, baud=baud_rate,wait_ready=True)
 
+	vehicle = connect('tcp:127.0.0.1:5760', wait_ready=True)
 	return vehicle
 
 def arm():
@@ -86,11 +87,13 @@ vehicle = connectMyCopter()
 
 #arm()
 
+#vehicle.takeoff()
+
 while True:
 	if not vehicle.armed:
 		time.sleep(1)
 	print(vehicle.channels['7'])
-	if(vehicle.channels['7'] > 1500):
+	if(vehicle.channels['7'] > 500):
 		set_velocity_body (vehicle, 5, 0, 0) #2 m/s para frente 
 		print("Autopilot is running")
 

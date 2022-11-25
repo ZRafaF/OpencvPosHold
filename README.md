@@ -13,15 +13,36 @@
 
 
 > ```bash
-> $ cd /usr/local/lib/python3.9/site-packages/cv2/python-3.9
+> cd /usr/local/lib/python3.9/site-packages/cv2/python-3.9
 > ```
 
->```bash
->$ sudo mv cv2.cpython-39-arm-linux-gnueabihf.so cv2.so
+> ```bash
+> sudo mv cv2.cpython-39-arm-linux-gnueabihf.so cv2.so
 > ```
 
 copiando o link ```cv2.so``` para o diretorio que você estiver
 
 >```bash
->$ ln -s /usr/local/lib/python3.9/site-packages/cv2/python-3.9/cv2.so cv2.so
+>ln -s /usr/local/lib/python3.9/site-packages/cv2/python-3.9/cv2.so cv2.so
 > ```
+
+
+# Simulando com o [dronekit-sitl]
+
+Abrindo uma simulação com o sitl
+```bash
+dronekit-sitl copter
+```
+
+Abrindo o visualizador (Está usando o [mavproxy](https://github.com/ArduPilot/MAVProxy))
+```bash
+sim_vehicle.py -v ArduCopter -n3 --auto-sysid --mcast --map
+```
+
+Após isso você pode executar o teu código
+
+**Conectar no SITL**
+```python
+vehicle = connect('tcp:127.0.0.1:5760', wait_ready=True)
+```
+
