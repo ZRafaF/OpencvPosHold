@@ -14,9 +14,6 @@ def connectMyCopter():
 	return vehicle
 
 def arm():
-	while vehicle.is_armable==True:
-		print("Aguardando veiculo poder ser armado")
-		time.sleep(1)
 	print("Armando...")
 	vehicle.armed=True
 	while vehicle.armed==False:
@@ -86,13 +83,19 @@ vehicle = connectMyCopter()
 
 #arm()
 
+
 while True:
 	if not vehicle.armed:
 		time.sleep(1)
 	print(vehicle.channels['7'])
 	if(vehicle.channels['7'] > 1500):
+		if(vehicle.mode != VehicleMode("GUIDED")):
+			vehicle.mode = VehicleMode("GUIDED")
 		set_velocity_body (vehicle, 5, 0, 0) #2 m/s para frente 
 		print("Autopilot is running")
+	elif(vehicle.mode == VehicleMode("GUIDED")):
+		vehicle.mode = VehicleMode("POSHOLD")
+		
 
 
 

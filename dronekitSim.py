@@ -11,13 +11,10 @@ def connectMyCopter():
 
 	#vehicle = connect(connection_string, baud=baud_rate,wait_ready=True)
 
-	vehicle = connect('tcp:127.0.0.1:5760', wait_ready=True)
+	vehicle = connect('tcp:127.0.0.1:5762', wait_ready=True)
 	return vehicle
 
 def arm():
-	while vehicle.is_armable==True:
-		print("Aguardando veiculo poder ser armado")
-		time.sleep(1)
 	print("Armando...")
 	vehicle.armed=True
 	while vehicle.armed==False:
@@ -85,19 +82,24 @@ def set_velocity_body(vehicle, vx, vy, vz):
 
 vehicle = connectMyCopter()
 
-#arm()
+if not vehicle.armed:
+	arm()
 
 #vehicle.takeoff()
+
+
 
 while True:
 	if not vehicle.armed:
 		time.sleep(1)
-	print(vehicle.channels['7'])
-	if(vehicle.channels['7'] > 500):
+	if(vehicle.mode == VehicleMode("GUIDED")):
+		if(vehicle.mode != VehicleMode("GUIDED")):
+			vehicle.mode = VehicleMode("GUIDED")
 		set_velocity_body (vehicle, 5, 0, 0) #2 m/s para frente 
 		print("Autopilot is running")
-
-
+	elif(vehicle.mode == VehicleMode("GUIDED")):
+		vehicle.mode = VehicleMode("POSHOLD")
+		
 
 
 print("Fim do programa")

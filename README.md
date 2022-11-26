@@ -36,13 +36,14 @@ dronekit-sitl copter
 
 Abrindo o visualizador (Está usando o [mavproxy](https://github.com/ArduPilot/MAVProxy))
 ```bash
-sim_vehicle.py -v ArduCopter -n3 --auto-sysid --mcast --map
+sim_vehicle.py -v ArduCopter --mcast --map --osd --console
 ```
 
 Após isso você pode executar o teu código
 
-**Conectar no SITL**
+## **Conectar no SITL**
 ```python
 vehicle = connect('tcp:127.0.0.1:5760', wait_ready=True)
 ```
+>Colocar o valor da porta que foi aberta no lugar do "5760"
 
