@@ -1,6 +1,5 @@
 from dronekit import connect, VehicleMode, LocationGlobalRelative, APIException
 from pymavlink import mavutil
-import pymavlink
 import time
 import socket
 import math
@@ -11,10 +10,12 @@ def connectMyCopter():
 	print(connection_string)
 
 	vehicle = connect(connection_string, baud=baud_rate,wait_ready=True)
-
 	return vehicle
 
 def arm():
+	while vehicle.is_armable==True:
+		print("Aguardando veiculo poder ser armado")
+		time.sleep(1)
 	print("Armando...")
 	vehicle.armed=True
 	while vehicle.armed==False:
@@ -80,48 +81,15 @@ def set_velocity_body(vehicle, vx, vy, vz):
 	vehicle.flush()
 
 
-
-
 vehicle = connectMyCopter()
 
-
-def setModeGuided():
-	msg = vehicle.message_factory.command_long_encode(
-		0, 0,
-		mavutil.mavlink.MAV_CMD_DO_SET_MODE, 0,
-		217, 3, 0, 0, 0, 0, 0)
-	vehicle.send_mavlink(msg)
-
-
-
-
-
 #arm()
-
-wasArmed = False
-
-setModeGuided()
-
-while True:
 	if not vehicle.armed:
-		print("Nao armado")
-		print(vehicle.channels['7'])
-		print(vehicle.mode.name)
-		if wasArmed:
-			print("desligando")
-			exit()
 		time.sleep(1)
-		continue
-	
-	wasArmed = True
-	print(vehicle.mode.name)
 	print(vehicle.channels['7'])
 	if(vehicle.channels['7'] > 1500):
-		set_velocity_body (vehicle, 10, 0, 0) #2 m/s para frente 
+		set_velocity_body (vehicle, 2, 0, 0) #2 m/s para frente 
 		print("Autopilot is running")
-	elif(vehicle.mode == VehicleMode("GUIDED")):
-		vehicle.mode = VehicleMode("POSHOLD")
-		
 
 
 
