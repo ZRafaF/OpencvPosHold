@@ -55,6 +55,7 @@ Esta é a bibliotéca em python para se comunicar com a controladora através do
 
 Links uteis:
 * [Documentação](https://github.com/ArduPilot/pymavlink)
+* [Guia mavlink](https://dronekit-python.readthedocs.io/en/latest/guide/index.html)
 * [Comandos categorizados](https://ardupilot.org/dev/docs/mavlink-commands.html)
 * [Lista completa de mensagens](https://mavlink.io/en/messages/common.html)
 * Exemplos:
