@@ -34,7 +34,7 @@ Abrindo uma simulação com o sitl
 dronekit-sitl copter
 ```
 
-Abrindo o visualizador (Está usando o [mavproxy](https://github.com/ArduPilot/MAVProxy))
+Abrindo o visualizador Está usando o [mavproxy](https://github.com/ArduPilot/MAVProxy)
 ```bash
 sim_vehicle.py -v ArduCopter --mcast --map --osd --console
 ```
@@ -46,4 +46,20 @@ Após isso você pode executar o teu código
 vehicle = connect('tcp:127.0.0.1:5760', wait_ready=True)
 ```
 >Colocar o valor da porta que foi aberta no lugar do "5760"
+
+___
+
+# [PyMavlink](https://github.com/ArduPilot/pymavlink)
+
+Esta é a bibliotéca em python para se comunicar com a controladora através do protocolo mavlink.
+
+Links uteis:
+* [Documentação](https://github.com/ArduPilot/pymavlink)
+* [Comandos categorizados](https://ardupilot.org/dev/docs/mavlink-commands.html)
+* [Lista completa de mensagens](https://mavlink.io/en/messages/common.html)
+* Exemplos:
+    * [Playlist com alguns exemplos](https://www.youtube.com/playlist?list=PLy9nLDKxDN68cwdt5EznyAul6R8mUSNou)
+    * [Exemplos bem documentados de funções básicas](https://www.ardusub.com/developers/pymavlink.html)
+* [Descrição mensagem de controle do drone](https://ardupilot.org/dev/docs/copter-commands-in-guided-mode.html#movement-command-details)
+
 
