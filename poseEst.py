@@ -2,6 +2,7 @@ import cv2 as cv
 from cv2 import aruco
 import numpy as np
 import os
+import math
 
 calib_data_path = "calib_data/MultiMatrix.npz"
 
@@ -26,6 +27,26 @@ cap.set(3, 400)
 cap.set(4, 300)
 cap.set(cv.CAP_PROP_FOURCC, cv.VideoWriter_fourcc('M', 'J', 'P', 'G'))
 
+def get_quaternion_from_euler(pitch, yaw, roll):
+  """
+  Convert an Euler angle to a quaternion.
+   
+  Input
+    :param roll: The roll (rotation around x-axis) angle in radians.
+    :param pitch: The pitch (rotation around y-axis) angle in radians.
+    :param yaw: The yaw (rotation around z-axis) angle in radians.
+ 
+  Output
+    :return qx, qy, qz, qw: The orientation in quaternion [x,y,z,w] format
+  """
+  qx = np.sin(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) - np.cos(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
+  qy = np.cos(roll/2) * np.sin(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.cos(pitch/2) * np.sin(yaw/2)
+  qz = np.cos(roll/2) * np.cos(pitch/2) * np.sin(yaw/2) - np.sin(roll/2) * np.sin(pitch/2) * np.cos(yaw/2)
+  qw = np.cos(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
+ 
+  return [qx, qy, qz, qw]
+
+
 while True:
     ret, frame = cap.read()
     if not ret:
@@ -35,9 +56,13 @@ while True:
         gray_frame, marker_dict, parameters=param_markers
     )
     if marker_corners:
-        rVec, tVec, _ = aruco.estimatePoseSingleMarkers(
+        rVec, tVec, mark = aruco.estimatePoseSingleMarkers(
             marker_corners, MARKER_SIZE, cam_mat, dist_coef
         )
+        
+        # Calculando a rotação
+        rotation = math.degrees(rVec[0][0][1]) + 180
+        
         total_markers = range(0, marker_IDs.size)
         for ids, corners, i in zip(marker_IDs, marker_corners, total_markers):
             cv.polylines(
@@ -70,7 +95,7 @@ while True:
             )
             cv.putText(
                 frame,
-                f"x:{round(tVec[i][0][0],1)} y: {round(tVec[i][0][1],1)} ",
+                f"x:{round(tVec[i][0][0],1)} y: {round(tVec[i][0][1],1)} r:{round(rotation)}",
                 bottom_right,
                 cv.FONT_HERSHEY_PLAIN,
                 1.0,
