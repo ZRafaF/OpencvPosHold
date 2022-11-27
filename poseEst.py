@@ -63,6 +63,9 @@ while True:
         # Calculando a rotação
         rotation = math.degrees(rVec[0][0][1]) + 180
         
+        # resolvendo PnP muito pesado
+        # _, rVecs, tVecs = cv.solvePnP(mark, marker_corners[0], cam_mat, dist_coef)
+
         total_markers = range(0, marker_IDs.size)
         for ids, corners, i in zip(marker_IDs, marker_corners, total_markers):
             cv.polylines(
