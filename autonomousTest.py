@@ -110,7 +110,7 @@ while True:
 		print(vehicle.mode.name)
 		if wasArmed:
 			print("desligando")
-			exit()
+			break
 		time.sleep(1)
 		continue
 	
@@ -125,6 +125,9 @@ while True:
 		
 
 
+vehicle.close()
+
 
 
 print("Fim do programa")
+exit()
