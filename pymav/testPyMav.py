@@ -19,9 +19,9 @@ print("Aguardando conexao")
 
 # Wait for the first heartbeat
 #   This sets the system and component ID of remote system for the link
-the_connection.wait_heartbeat()
-print("Heartbeat from system (system %u component %u)" %
-    (the_connection.target_system, the_connection.target_component))
+#the_connection.wait_heartbeat()
+#print("Heartbeat from system (system %u component %u)" %
+#    (the_connection.target_system, the_connection.target_component))
 
 # Armando
 #the_connection.mav.command_long_send(the_connection.target_system, the_connection.target_component,
@@ -130,9 +130,15 @@ type_mask = int(0b110111000111) #mascara para usar apenas a velocidade
 while 1:
     print(vehicle.channels['7'])
     print(vehicle.mode.name)
-    if(vehicle.channels['7'] < 1500):
+    the_connection.mav.command_long_send(
+        the_connection.target_system,
+        the_connection.target_component,
+        mavutil.mavlink.PLAY_TUNE_V2,
+        3,"d")
+    if(vehicle.channels['7'] < 1500 or vehicle.mode.name != 'GUIDED'):
         continue
-    
+
+    print("Acionado")
     # Descrição dessa mensagem em https://ardupilot.org/dev/docs/copter-commands-in-guided-mode.html#movement-command-details
 
     # Mover para trás à 5 m/s
@@ -153,7 +159,6 @@ while 1:
             0,  #Z acceleration in m/s/s (positive is down)
             0,  #yaw or heading in radians (0 is forward or North)
             0)) #yaw rate in rad/s
-
 
     
     # Comando para manter o drone no heading 0
@@ -179,7 +184,7 @@ while 1:
     """
 
     # Mensagem que contem a posição atual + heading
-    msg = the_connection.recv_match(type='GLOBAL_POSITION_INT', blocking=True)
+    #msg = the_connection.recv_match(type='GLOBAL_POSITION_INT', blocking=True)
     
     # Imrimindo apenas o heading
-    print(msg.hdg)
+    #print(msg.hdg)
