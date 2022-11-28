@@ -10,7 +10,7 @@ baud_rate = 57600
 
 # Start a connection listening to a UDP port
 
-vehicle = connect("/dev/ttyAMA0", baud=baud_rate,wait_ready=True)
+vehicle = connect('udpin:localhost:14551')
 
 the_connection = vehicle._master
 
@@ -137,7 +137,9 @@ while 1:
         mavutil.mavlink.PLAY_TUNE_V2,
         3,"d")
     """
-    if(vehicle.channels['7'] < 1500 or vehicle.mode.name != 'GUIDED'):
+    #if(vehicle.channels['7'] < 1500 or vehicle.mode.name != 'GUIDED'):
+    
+    if(vehicle.mode.name != 'GUIDED'):
         continue
 
     print("Acionado")
@@ -174,7 +176,7 @@ while 1:
         the_connection.target_system, the_connection.target_component,
         mavutil.mavlink.MAV_CMD_CONDITION_YAW, 
         0,          #confirmation
-        90,          # param 1, yaw in degrees
+        15,          # param 1, yaw in degrees
         0,          # param 2, yaw speed deg/s
         0,          # param 3, direction -1 ccw, 1 cw
         0,          # param 4, relative offset 1, absolute angle 0
