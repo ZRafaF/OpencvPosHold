@@ -21,7 +21,7 @@ print("Aguardando conexao")
 #   This sets the system and component ID of remote system for the link
 the_connection.wait_heartbeat()
 print("Heartbeat from system (system %u component %u)" %
-      (the_connection.target_system, the_connection.target_component))
+    (the_connection.target_system, the_connection.target_component))
 
 # Armando
 #the_connection.mav.command_long_send(the_connection.target_system, the_connection.target_component,
@@ -132,12 +132,11 @@ while 1:
     print(vehicle.mode.name)
     if(vehicle.channels['7'] < 1500):
         continue
-
-
+    
     # Descrição dessa mensagem em https://ardupilot.org/dev/docs/copter-commands-in-guided-mode.html#movement-command-details
 
     # Mover para trás à 5 m/s
-	the_connection.mav.send(
+    the_connection.mav.send(
 		mavutil.mavlink.MAVLink_set_position_target_local_ned_message(
             10, the_connection.target_system,
             the_connection.target_component, 
