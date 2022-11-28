@@ -100,6 +100,7 @@ def setModeGuided():
 
 wasArmed = False
 
+# Não foi possivel setar o modo através do programa, apenas direto pelo controle
 setModeGuided()
 
 while True:
