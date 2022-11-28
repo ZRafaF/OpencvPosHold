@@ -142,9 +142,23 @@ POR FAVOR REFERENCIAR https://ardupilot.org/dev/docs/copter-commands-in-guided-m
 type_mask = int(0b110111000111) #mascara para usar apenas a velocidade
 
 
+wasArmed = False
+
+
 while 1:
     print(vehicle.channels['7'])
     print(vehicle.mode.name)
+    
+    if not vehicle.armed:
+		print("Nao armado")
+		print(vehicle.channels['7'])
+		print(vehicle.mode.name)
+		if wasArmed:
+			print("desligando")
+			break
+		time.sleep(1)
+		continue
+    wasArmed = True
     """
     the_connection.mav.command_long_send(
         the_connection.target_system,
@@ -210,3 +224,11 @@ while 1:
     
     # Imrimindo apenas o heading
     #print(msg.hdg)
+
+vehicle.close()
+
+
+
+print("Fim do programa")
+os.system("sudo shutdown -h now")
+exit()
