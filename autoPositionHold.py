@@ -14,7 +14,7 @@ dist_coef = calib_data["distCoef"]
 r_vectors = calib_data["rVector"]
 t_vectors = calib_data["tVector"]
 
-MARKER_SIZE = 15  # centimeters
+MARKER_SIZE = 25  # centimeters
 
 marker_dict = aruco.Dictionary_get(aruco.DICT_4X4_100)
 
@@ -28,34 +28,6 @@ have_display = bool(os.environ.get("DISPLAY", None))
 cap.set(3, 400)
 cap.set(4, 300)
 cap.set(cv.CAP_PROP_FOURCC, cv.VideoWriter_fourcc("M", "J", "P", "G"))
-
-
-def get_quaternion_from_euler(pitch, yaw, roll):
-    """
-    Convert an Euler angle to a quaternion.
-
-    Input
-      :param roll: The roll (rotation around x-axis) angle in radians.
-      :param pitch: The pitch (rotation around y-axis) angle in radians.
-      :param yaw: The yaw (rotation around z-axis) angle in radians.
-
-    Output
-      :return qx, qy, qz, qw: The orientation in quaternion [x,y,z,w] format
-    """
-    qx = np.sin(roll / 2) * np.cos(pitch / 2) * np.cos(yaw / 2) - np.cos(
-        roll / 2
-    ) * np.sin(pitch / 2) * np.sin(yaw / 2)
-    qy = np.cos(roll / 2) * np.sin(pitch / 2) * np.cos(yaw / 2) + np.sin(
-        roll / 2
-    ) * np.cos(pitch / 2) * np.sin(yaw / 2)
-    qz = np.cos(roll / 2) * np.cos(pitch / 2) * np.sin(yaw / 2) - np.sin(
-        roll / 2
-    ) * np.sin(pitch / 2) * np.cos(yaw / 2)
-    qw = np.cos(roll / 2) * np.cos(pitch / 2) * np.cos(yaw / 2) + np.sin(
-        roll / 2
-    ) * np.sin(pitch / 2) * np.sin(yaw / 2)
-
-    return [qx, qy, qz, qw]
 
 
 # Ganho nos eixos (menor = mais abrupto)
@@ -95,7 +67,6 @@ while True:
         for ids, corners, i in zip(marker_IDs, marker_corners, total_markers):
             if ids != targetId:
                 continue
-            rotation = math.degrees(rVec[i][0][1]) + 180
 
             # Calculating the distance
             distance = np.sqrt(
@@ -103,7 +74,7 @@ while True:
             )
             deltaX = tVec[i][0][0]
             deltaY = tVec[i][0][1]
-            deltaR = rotation
+            rotation = math.degrees(rVec[i][0][1]) + 180
 
             if have_display:
                 cv.polylines(
@@ -145,11 +116,16 @@ while True:
                     cv.LINE_AA,
                 )
 
-            print(f"x = {deltaX}, y = {deltaY}, r = {deltaR}")
+            print(f"x = {deltaX}, y = {deltaY}, r = {rotation}")
+
     if have_display:
         cv.imshow("frame", frame)
+
     key = cv.waitKey(1)
+
     if key == ord("q"):
         break
+
 cap.release()
+
 cv.destroyAllWindows()
