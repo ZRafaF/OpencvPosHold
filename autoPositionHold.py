@@ -14,7 +14,8 @@ dist_coef = calib_data["distCoef"]
 r_vectors = calib_data["rVector"]
 t_vectors = calib_data["tVector"]
 
-MARKER_SIZE = 25  # centimeters
+# Tamanho da lateral do marker
+MARKER_SIZE = 15  # centimeters
 
 marker_dict = aruco.Dictionary_get(aruco.DICT_4X4_100)
 
@@ -23,6 +24,8 @@ param_markers = aruco.DetectorParameters_create()
 cap = cv.VideoCapture(0)
 have_display = bool(os.environ.get("DISPLAY", None))
 
+if os.name == 'nt':
+    have_display = True
 
 ## comprimindo a captura
 cap.set(3, 400)
@@ -36,6 +39,7 @@ ganhoY = 5
 
 # Qual o ID do marker objetivo
 targetId = 72
+
 
 
 while True:
