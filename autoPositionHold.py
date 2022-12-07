@@ -73,11 +73,10 @@ def conectarV():
         
 
 
+print("Aguardando conexao")
 vehicle = conectarV()
 the_connection = vehicle._master
-print("Aguardando conexao")
-
-wasArmed = False
+print("Conectado!")
 
 
 def to_quaternion(roll=0.0, pitch=0.0, yaw=0.0):
@@ -115,7 +114,7 @@ maxPitchAngle = 30
 maxRollAngle = 30
 
 def stayStill():
-    if vehicle.mode.name != "GUIDED":
+    if vehicle.mode.name != "GUIDED_NOGPS":
         return
     the_connection.mav.set_attitude_target_send(
         0,
@@ -130,14 +129,16 @@ def stayStill():
     )
 
 
+wasArmed = False
+
 def processAutoFlight(deltaX, deltaY, rotation, altitude):
     if not vehicle.armed:
         print("Nao armado")
         print(vehicle.mode.name)
-        if wasArmed:
+        if False: #wasArmed:
             print("desligando")
             endProgramAndShutDown()
-        time.sleep(1)
+        #time.sleep(1)
         return
     wasArmed = True
     """
@@ -147,7 +148,7 @@ def processAutoFlight(deltaX, deltaY, rotation, altitude):
         mavutil.mavlink.PLAY_TUNE_V2,
         3,"d")
     """
-    if vehicle.mode.name != "GUIDED":
+    if vehicle.mode.name != "GUIDED_NOGPS":
         return
 
     # print("Acionado")
@@ -162,7 +163,7 @@ def processAutoFlight(deltaX, deltaY, rotation, altitude):
     
     if rollAngle > maxRollAngle:
         rollAngle = maxRollAngle
-
+    return
     the_connection.mav.set_attitude_target_send(
         0,
         the_connection.target_system,
@@ -176,6 +177,7 @@ def processAutoFlight(deltaX, deltaY, rotation, altitude):
     )
 
 while True:
+    print(vehicle.mode.name)
     ret, frame = cap.read()
     if not ret:
         break
