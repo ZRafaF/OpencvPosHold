@@ -1,7 +1,16 @@
+from pymavlink import mavutil
+from dronekit import connect, VehicleMode, LocationGlobalRelative, APIException
+
+
 import cv2 as cv
 from cv2 import aruco
 import numpy as np
 import os
+import math
+
+import sys
+import time
+from argparse import ArgumentParser
 import math
 
 calib_data_path = "calib_data/MultiMatrix.npz"
@@ -33,14 +42,138 @@ cap.set(4, 300)
 cap.set(cv.CAP_PROP_FOURCC, cv.VideoWriter_fourcc("M", "J", "P", "G"))
 
 
-# Ganho nos eixos (menor = mais abrupto)
-ganhoX = 5
-ganhoY = 5
 
 # Qual o ID do marker objetivo
 targetId = 72
 
 
+
+
+####    CONECTANDO VIA DRONEKIT E PYMAVLINK
+
+
+
+parser = ArgumentParser()
+
+parser.add_argument(
+    "-s", type=bool, help="Executar como simulador?", metavar="bool", default=False
+)
+
+
+ehSimulacao = parser.parse_args().s
+baud_rate = 57600
+
+print(ehSimulacao)
+
+def conectarV():
+    if ehSimulacao:
+        return connect("udpin:localhost:14551")
+    else:
+        return connect("/dev/ttyAMA0", baud=baud_rate, wait_ready=True)
+        
+
+
+vehicle = conectarV()
+the_connection = vehicle._master
+print("Aguardando conexao")
+
+wasArmed = False
+
+
+def to_quaternion(roll=0.0, pitch=0.0, yaw=0.0):
+    """
+    Convert degrees to quaternions
+    """
+    t0 = math.cos(math.radians(yaw * 0.5))
+    t1 = math.sin(math.radians(yaw * 0.5))
+    t2 = math.cos(math.radians(roll * 0.5))
+    t3 = math.sin(math.radians(roll * 0.5))
+    t4 = math.cos(math.radians(pitch * 0.5))
+    t5 = math.sin(math.radians(pitch * 0.5))
+
+    w = t0 * t2 * t4 + t1 * t3 * t5
+    x = t0 * t3 * t4 - t1 * t2 * t5
+    y = t0 * t2 * t5 + t1 * t3 * t4
+    z = t1 * t2 * t4 - t0 * t3 * t5
+
+    return [w, x, y, z]
+
+def endProgramAndShutDown():
+    cap.release()
+    cv.destroyAllWindows()
+    vehicle.close()
+    print("Fim do programa")
+    os.system("sudo shutdown -h now")
+    exit()
+
+
+# Ganho nos eixos (menor = mais abrupto)
+ganhoX = 1
+ganhoY = 1
+
+maxPitchAngle = 30
+maxRollAngle = 30
+
+def stayStill():
+    if vehicle.mode.name != "GUIDED":
+        return
+    the_connection.mav.set_attitude_target_send(
+        0,
+        the_connection.target_system,
+        the_connection.target_component,
+        0b00000000,
+        to_quaternion(0, 0, 0),  # Quaternion
+        0,  # Body roll rate in radian
+        0,  # Body pitch rate in radian
+        math.radians(0),  # Body yaw rate in radian/second
+        0.5,  # Thrust
+    )
+
+
+def processAutoFlight(deltaX, deltaY, rotation, altitude):
+    if not vehicle.armed:
+        print("Nao armado")
+        print(vehicle.mode.name)
+        if wasArmed:
+            print("desligando")
+            endProgramAndShutDown()
+        time.sleep(1)
+        return
+    wasArmed = True
+    """
+    the_connection.mav.command_long_send(
+        the_connection.target_system,
+        the_connection.target_component,
+        mavutil.mavlink.PLAY_TUNE_V2,
+        3,"d")
+    """
+    if vehicle.mode.name != "GUIDED":
+        return
+
+    # print("Acionado")
+
+    pitchAngle = deltaY / ganhoY
+    rollAngle = deltaX / ganhoX
+
+    print(f'roll = {rollAngle} pitch = {pitchAngle}')
+
+    if pitchAngle > maxPitchAngle:
+        pitchAngle = maxRollAngle
+    
+    if rollAngle > maxRollAngle:
+        rollAngle = maxRollAngle
+
+    the_connection.mav.set_attitude_target_send(
+        0,
+        the_connection.target_system,
+        the_connection.target_component,
+        0b00000000,
+        to_quaternion(rollAngle, pitchAngle, 0),  # Quaternion
+        0,  # Body roll rate in radian
+        0,  # Body pitch rate in radian
+        math.radians(0),  # Body yaw rate in radian/second
+        0.5,  # Thrust
+    )
 
 while True:
     ret, frame = cap.read()
@@ -121,7 +254,9 @@ while True:
                 )
 
             print(f"x = {deltaX}, y = {deltaY}, r = {rotation}")
-
+            processAutoFlight(deltaX, deltaY, rotation, distance)
+    else:
+        stayStill()
     if have_display:
         cv.imshow("frame", frame)
 
@@ -130,6 +265,6 @@ while True:
     if key == ord("q"):
         break
 
-cap.release()
 
-cv.destroyAllWindows()
+endProgramAndShutDown()
+
