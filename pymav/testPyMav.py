@@ -20,9 +20,10 @@ baud_rate = 57600
 
 def conectarV():
     if ehSimulacao:
-        return connect("/dev/ttyAMA0", baud=baud_rate, wait_ready=True)
-    else:
         return connect("udpin:localhost:14551")
+    else:
+        return connect("/dev/ttyAMA0", baud=baud_rate, wait_ready=True)
+
 
 
 vehicle = conectarV()
@@ -170,7 +171,8 @@ while 1:
     if not vehicle.armed:
         print("Nao armado")
         print(vehicle.mode.name)
-        if wasArmed:
+        #if wasArmed == True:
+        if False:
             print("desligando")
             break
         time.sleep(1)

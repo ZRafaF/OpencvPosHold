@@ -102,13 +102,14 @@ def endProgramAndShutDown():
     cv.destroyAllWindows()
     vehicle.close()
     print("Fim do programa")
+    exit()
     os.system("sudo shutdown -h now")
     exit()
 
 
 # Ganho nos eixos (menor = mais abrupto)
-ganhoX = 1
-ganhoY = 1
+ganhoX = 0.1
+ganhoY = 0.1
 
 maxPitchAngle = 30
 maxRollAngle = 30
@@ -151,10 +152,11 @@ def processAutoFlight(deltaX, deltaY, rotation, altitude):
     if vehicle.mode.name != "GUIDED_NOGPS":
         return
 
-    # print("Acionado")
+    print("OPERANDO")
 
-    pitchAngle = deltaY / ganhoY
-    rollAngle = deltaX / ganhoX
+    pitchAngle = deltaX / ganhoX
+    rollAngle = deltaY / ganhoY
+    
 
     print(f'roll = {rollAngle} pitch = {pitchAngle}')
 
@@ -168,13 +170,16 @@ def processAutoFlight(deltaX, deltaY, rotation, altitude):
         0,
         the_connection.target_system,
         the_connection.target_component,
-        0b00000000,
+        0b00000111,
         to_quaternion(rollAngle, pitchAngle, 0),  # Quaternion
         0,  # Body roll rate in radian
         0,  # Body pitch rate in radian
         math.radians(0),  # Body yaw rate in radian/second
         0.5,  # Thrust
     )
+
+fourcc = cv.VideoWriter_fourcc('X','V','I','D')
+videoWriter = cv.VideoWriter('video.avi', fourcc, 30.0, (400,300))
 
 while True:
     print(vehicle.mode.name)
@@ -215,7 +220,8 @@ while True:
             deltaY = tVec[i][0][1]
             rotation = math.degrees(rVec[i][0][1]) + 180
 
-            if have_display:
+            #if have_display:
+            if True:
                 cv.polylines(
                     frame,
                     [corners.astype(np.int32)],
@@ -261,7 +267,7 @@ while True:
         stayStill()
     if have_display:
         cv.imshow("frame", frame)
-
+    videoWriter.write(frame)
     key = cv.waitKey(1)
 
     if key == ord("q"):
