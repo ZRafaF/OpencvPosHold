@@ -58,6 +58,8 @@ print(msg)
 ###
 
 """
+
+"""
 # Setando o mode
 
 # Choose a mode
@@ -83,6 +85,7 @@ the_connection.mav.set_mode_send(
     mode_id,
 )
 
+"""
 
 # the_connection.mav.command_long_send(the_connection.target_system, the_connection.target_component,
 #                                     mavutil.mavlink.MAV_CMD_DO_CHANGE_SPEED, 0, 0, 5, 0, 0, 0, 0, 0)
@@ -180,7 +183,7 @@ while 1:
         mavutil.mavlink.PLAY_TUNE_V2,
         3,"d")
     """
-    if vehicle.mode.name != "GUIDED":
+    if vehicle.mode.name != "GUIDED_NOGPS":
         continue
 
     # print("Acionado")
@@ -190,7 +193,7 @@ while 1:
         the_connection.target_system,
         the_connection.target_component,
         0b00000000,
-        to_quaternion(0, -20, 0),  # Quaternion
+        to_quaternion(0, -5, 0),  # Quaternion
         0,  # Body roll rate in radian
         0,  # Body pitch rate in radian
         math.radians(0),  # Body yaw rate in radian/second
