@@ -108,8 +108,8 @@ def endProgramAndShutDown():
 
 
 # Ganho nos eixos (menor = mais abrupto)
-ganhoX = 1
-ganhoY = 1
+ganhoX = 20
+ganhoY = 20
 
 maxPitchAngle = 15
 maxRollAngle = 15
@@ -176,7 +176,7 @@ def processAutoFlight(deltaX, deltaY, rotation, altitude):
         the_connection.target_system,
         the_connection.target_component,
         0b00000000,
-        to_quaternion(-rollAngle, -pitchAngle, 0),  # Quaternion
+        to_quaternion(rollAngle, pitchAngle, 0),  # Quaternion
         0,  # Body roll rate in radian
         0,  # Body pitch rate in radian
         math.radians(0),  # Body yaw rate in radian/second
