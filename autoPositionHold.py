@@ -108,11 +108,11 @@ def endProgramAndShutDown():
 
 
 # Ganho nos eixos (menor = mais abrupto)
-ganhoX = 0.1
-ganhoY = 0.1
+ganhoX = 1
+ganhoY = 1
 
-maxPitchAngle = 30
-maxRollAngle = 30
+maxPitchAngle = 15
+maxRollAngle = 15
 
 def stayStill():
     if vehicle.mode.name != "GUIDED_NOGPS":
@@ -161,17 +161,22 @@ def processAutoFlight(deltaX, deltaY, rotation, altitude):
     print(f'roll = {rollAngle} pitch = {pitchAngle}')
 
     if pitchAngle > maxPitchAngle:
-        pitchAngle = maxRollAngle
-    
+        pitchAngle = maxPitchAngle
+    if pitchAngle < -maxPitchAngle:
+        pitchAngle = -maxPitchAngle
+
+    if rollAngle < -maxRollAngle:
+        rollAngle = -maxRollAngle
+
     if rollAngle > maxRollAngle:
         rollAngle = maxRollAngle
-    return
+    #return
     the_connection.mav.set_attitude_target_send(
         0,
         the_connection.target_system,
         the_connection.target_component,
-        0b00000111,
-        to_quaternion(rollAngle, pitchAngle, 0),  # Quaternion
+        0b00000000,
+        to_quaternion(-rollAngle, -pitchAngle, 0),  # Quaternion
         0,  # Body roll rate in radian
         0,  # Body pitch rate in radian
         math.radians(0),  # Body yaw rate in radian/second
@@ -266,7 +271,8 @@ while True:
     else:
         stayStill()
     if have_display:
-        cv.imshow("frame", frame)
+        have_display = True
+        #cv.imshow("frame", frame)
     videoWriter.write(frame)
     key = cv.waitKey(1)
 
