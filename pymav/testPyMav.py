@@ -195,7 +195,7 @@ while 1:
         the_connection.target_system,
         the_connection.target_component,
         0b00000000,
-        to_quaternion(0, -5, 0),  # Quaternion
+        to_quaternion(5, 0, 0),  # Quaternion
         0,  # Body roll rate in radian
         0,  # Body pitch rate in radian
         math.radians(0),  # Body yaw rate in radian/second
@@ -289,7 +289,6 @@ def send_attitude_target(roll_angle = 0.0, pitch_angle = 0.0,
     # msg = the_connection.recv_match(type='GLOBAL_POSITION_INT', blocking=True)
 
     # Imrimindo apenas o heading   msg = the_connection.recv_match(type="ATTITUDE_TARGET", blocking=False)
-    print(msg)
     # print(msg.hdg)
 
 vehicle.close()

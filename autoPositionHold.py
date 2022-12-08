@@ -58,12 +58,17 @@ parser = ArgumentParser()
 parser.add_argument(
     "-s", type=bool, help="Executar como simulador?", metavar="bool", default=False
 )
+parser.add_argument(
+    "-r", type=bool, help="Gravar camera?", metavar="bool", default=True
+)
 
 
 ehSimulacao = parser.parse_args().s
+recordCamera = parser.parse_args().r
 baud_rate = 57600
 
-print(ehSimulacao)
+print(f"ehSimulacao: {ehSimulacao}, recordCamera: {recordCamera}")
+
 
 def conectarV():
     if ehSimulacao:
@@ -111,8 +116,8 @@ def endProgramAndShutDown():
 ganhoX = 20
 ganhoY = 20
 
-maxPitchAngle = 15
-maxRollAngle = 15
+maxPitchAngle = 8
+maxRollAngle = 8
 
 def stayStill():
     if vehicle.mode.name != "GUIDED_NOGPS":
@@ -139,20 +144,11 @@ def processAutoFlight(deltaX, deltaY, rotation, altitude):
         if False: #wasArmed:
             print("desligando")
             endProgramAndShutDown()
-        #time.sleep(1)
         return
     wasArmed = True
-    """
-    the_connection.mav.command_long_send(
-        the_connection.target_system,
-        the_connection.target_component,
-        mavutil.mavlink.PLAY_TUNE_V2,
-        3,"d")
-    """
+
     if vehicle.mode.name != "GUIDED_NOGPS":
         return
-
-    print("OPERANDO")
 
     pitchAngle = deltaX / ganhoX
     rollAngle = deltaY / ganhoY
@@ -170,13 +166,13 @@ def processAutoFlight(deltaX, deltaY, rotation, altitude):
 
     if rollAngle > maxRollAngle:
         rollAngle = maxRollAngle
-    #return
+
     the_connection.mav.set_attitude_target_send(
         0,
         the_connection.target_system,
         the_connection.target_component,
         0b00000000,
-        to_quaternion(rollAngle, pitchAngle, 0),  # Quaternion
+        to_quaternion(-rollAngle, pitchAngle, 0),  # Quaternion
         0,  # Body roll rate in radian
         0,  # Body pitch rate in radian
         math.radians(0),  # Body yaw rate in radian/second
@@ -226,7 +222,7 @@ while True:
             rotation = math.degrees(rVec[i][0][1]) + 180
 
             #if have_display:
-            if True:
+            if have_display or recordCamera:
                 cv.polylines(
                     frame,
                     [corners.astype(np.int32)],
@@ -271,9 +267,10 @@ while True:
     else:
         stayStill()
     if have_display:
-        have_display = True
-        #cv.imshow("frame", frame)
-    videoWriter.write(frame)
+        cv.imshow("frame", frame)
+
+    if recordCamera:
+        videoWriter.write(frame)
     key = cv.waitKey(1)
 
     if key == ord("q"):
