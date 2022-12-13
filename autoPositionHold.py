@@ -113,11 +113,11 @@ def endProgramAndShutDown():
 
 
 # Ganho nos eixos (menor = mais abrupto)
-ganhoX = 20
-ganhoY = 20
+ganhoX = 10
+ganhoY = 10
 
-maxPitchAngle = 8
-maxRollAngle = 8
+maxPitchAngle = 12
+maxRollAngle = 12
 
 def stayStill():
     if vehicle.mode.name != "GUIDED_NOGPS":
