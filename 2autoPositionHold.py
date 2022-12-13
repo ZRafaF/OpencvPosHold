@@ -31,10 +31,7 @@ marker_dict = aruco.Dictionary_get(aruco.DICT_4X4_100)
 param_markers = aruco.DetectorParameters_create()
 
 cap = cv.VideoCapture(0)
-have_display = bool(os.environ.get("DISPLAY", None))
-
-if os.name == 'nt':
-    have_display = True
+#have_display = bool(os.environ.get("DISPLAY", None))
 
 ## comprimindo a captura
 cap.set(3, 640)
@@ -56,18 +53,22 @@ targetId = 72
 parser = ArgumentParser()
 
 parser.add_argument(
-    "-s", type=bool, help="Executar como simulador?", metavar="bool", default=False
+    "-s", "--simulation", help="Executar como simulador", default=False, action='store_true'
 )
 parser.add_argument(
-    "-r", type=bool, help="Gravar camera?", metavar="bool", default=True
+    "-r", "--record",  help="Gravar camera?", default=False, action='store_true'
+)
+parser.add_argument(
+    "-d","--display",  help="Tem display", default=False, action='store_true'
 )
 
 
-ehSimulacao = parser.parse_args().s
-recordCamera = parser.parse_args().r
-baud_rate = 57600
+ehSimulacao = parser.parse_args().simulation
+recordCamera = parser.parse_args().record
+have_display = parser.parse_args().display
 
-print(f"ehSimulacao: {ehSimulacao}, recordCamera: {recordCamera}")
+baud_rate = 57600
+print(f"ehSimulacao: {ehSimulacao}, recordCamera: {recordCamera}, have_display: {have_display}")
 
 
 def conectarV():
