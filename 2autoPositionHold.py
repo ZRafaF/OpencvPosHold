@@ -33,9 +33,12 @@ param_markers = aruco.DetectorParameters_create()
 cap = cv.VideoCapture(0)
 #have_display = bool(os.environ.get("DISPLAY", None))
 
+CAP_WIDTH = 640
+CAP_HEIGHT = 480
+
 ## comprimindo a captura
-cap.set(3, 640)
-cap.set(4, 480)
+cap.set(3, CAP_WIDTH)
+cap.set(4, CAP_HEIGHT)
 cap.set(cv.CAP_PROP_FOURCC, cv.VideoWriter_fourcc("M", "J", "P", "G"))
 
 
@@ -185,6 +188,46 @@ videoWriter = cv.VideoWriter('video.avi', fourcc, 30.0, (400,300))
 
 lastTime = 0
 
+def rotate_marker_corners(rvec, markersize, tvec = None):
+
+    mhalf = markersize / 2.0
+    # convert rot vector to rot matrix both do: markerworld -> cam-world
+    mrv, jacobian = cv.Rodrigues(rvec)
+
+    #in markerworld the corners are all in the xy-plane so z is zero at first
+    X = mhalf * mrv[:,0] #rotate the x = mhalf
+    Y = mhalf * mrv[:,1] #rotate the y = mhalf
+    minusX = X * (-1)
+    minusY = Y * (-1)
+
+    # calculate 4 corners of the marker in camworld. corners are enumerated clockwise
+    markercorners = []
+    markercorners.append(np.add(minusX, Y)) #was upper left in markerworld
+    markercorners.append(np.add(X, Y)) #was upper right in markerworld
+    markercorners.append(np.add( X, minusY)) #was lower right in markerworld
+    markercorners.append(np.add(minusX, minusY)) #was lower left in markerworld
+    # if tvec given, move all by tvec
+    if tvec is not None:
+        C = tvec #center of marker in camworld
+        for i, mc in enumerate(markercorners):
+            markercorners[i] = np.add(C,mc) #add tvec to each corner
+    print('Vec X, Y, C, dot(X,Y)', X,Y,C, np.dot(X,Y)) # just for debug
+    markercorners = np.array(markercorners,dtype=np.float32) # type needed when used as input to cv2
+    return markercorners, mrv
+
+def get_xy_from_corner(corner, capture_width, capture_height):
+    x = 0
+    y = 0
+    
+    x = (corner[0][0] + corner[1][0] + corner[2][0] + corner[3][0]) / 4
+    y = (corner[0][1] + corner[1][1] + corner[2][1] + corner[3][1]) / 4
+    sideSizeInPixels = math.sqrt(((corner[1][0] - corner[0][0])**2) + ((corner[1][1] - corner[0][1])**2))
+    x = x - (capture_width/2)
+    y = y -(capture_height/2)
+    return x,y,sideSizeInPixels
+
+
+
 while True:
     currentTime= time.time()
     fps = 1.0 / (currentTime - lastTime)
@@ -214,6 +257,8 @@ while True:
             marker_corners, MARKER_SIZE, cam_mat, dist_coef
         )
 
+        #print(rotate_marker_corners(rVec, MARKER_SIZE, tVec))
+
         # Calculando a rotação
 
         # resolvendo PnP muito pesado
@@ -230,13 +275,22 @@ while True:
         for ids, corners, i in zip(marker_IDs, marker_corners, total_markers):
             if ids != targetId:
                 continue
+            xPixelPos, yPixelPos, sideSizePixel = get_xy_from_corner(corners[i], CAP_WIDTH, CAP_HEIGHT)
+            
+            pixelCmProportion = MARKER_SIZE / sideSizePixel
+
+            
 
             # Calculating the distance
             distance = np.sqrt(
                 tVec[i][0][2] ** 2 + tVec[i][0][0] ** 2 + tVec[i][0][1] ** 2
             )
+
+            print(f"old x {pixelCmProportion * xPixelPos} y {pixelCmProportion * yPixelPos}")
             deltaX = tVec[i][0][0]
+            #deltaX = pixelCmProportion * xPixelPos
             deltaY = tVec[i][0][1]
+            #deltaY = pixelCmProportion * yPixelPos
             rotation = math.degrees(rVec[i][0][1]) + 180
 
             #if have_display:
