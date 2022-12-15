@@ -2,6 +2,7 @@ import cv2
 import apriltag
 
 import numpy as np
+from argparse import ArgumentParser
 
 import time
 
@@ -14,6 +15,25 @@ MARKER_SIZE = 15  # centimeters
 ## comprimindo a captura
 cap.set(3, CAP_WIDTH)
 cap.set(4, CAP_HEIGHT)
+
+
+parser = ArgumentParser()
+
+parser.add_argument(
+    "-s", "--simulation", help="Executar como simulador", default=False, action='store_true'
+)
+parser.add_argument(
+    "-r", "--record",  help="Gravar camera?", default=False, action='store_true'
+)
+parser.add_argument(
+    "-d","--display",  help="Tem display", default=False, action='store_true'
+)
+
+ehSimulacao = parser.parse_args().simulation
+recordCamera = parser.parse_args().record
+have_display = parser.parse_args().display
+
+print(f"ehSimulacao: {ehSimulacao}, recordCamera: {recordCamera}, have_display: {have_display}")
 
 
 # Parametros gerados do script aprilCalibrateCam.py
@@ -173,17 +193,17 @@ while True:
             r,
             cam_params,
             MARKER_SIZE)
-        
-        _draw_pose(
-            frame,
-            cam_params,
-            MARKER_SIZE,
-            pose)
+        if have_display:
+            _draw_pose(
+                frame,
+                cam_params,
+                MARKER_SIZE,
+                pose)
 
-    
-    # show the output image after AprilTag detection
-    cv2.imshow("Image", frame)    
-    
-    key = cv2.waitKey(1)
-    if key == ord("q"):
-        break
+    if have_display:
+        # show the output image after AprilTag detection
+        cv2.imshow("Image", frame)    
+        
+        key = cv2.waitKey(1)
+        if key == ord("q"):
+            break
