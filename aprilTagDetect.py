@@ -13,8 +13,8 @@ CAP_HEIGHT = 480
 MARKER_SIZE = 15  # centimeters
 
 ## comprimindo a captura
-cap.set(3, CAP_WIDTH)
-cap.set(4, CAP_HEIGHT)
+#cap.set(3, CAP_WIDTH)
+#cap.set(4, CAP_HEIGHT)
 
 
 parser = ArgumentParser()
@@ -122,7 +122,6 @@ while True:
     fps = 1.0 / (currentTime - lastTime)
     lastTime = currentTime
 
-    print(f"fps: {fps}")
 
     cv2.putText(
             frame,
@@ -140,7 +139,7 @@ while True:
     
 
 
-    print("[INFO] {} total AprilTags detected".format(len(results)))
+    print(f"tags: {format(len(results))}  fps: {fps}")
     
     """
     tag.id,

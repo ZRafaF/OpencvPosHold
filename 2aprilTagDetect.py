@@ -134,6 +134,10 @@ stream = camera.capture_continuous(
     rawCapture, 
     format="bgr",
 	use_video_port=True)
+
+print("aqui")
+camera.close()
+
     
 vs = PiVideoStream().start()
 time.sleep(1.0)
@@ -237,3 +241,8 @@ while True:
         key = cv2.waitKey(1)
         if key == ord("q"):
             break
+
+cv2.destroyAllWindows()
+stream.close()
+rawCapture.close()
+camera.close()
