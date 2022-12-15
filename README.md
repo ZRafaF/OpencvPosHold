@@ -47,27 +47,43 @@ Após isso você pode executar o teu código
 Executando [autoPositionHold.py](https://github.com/ZRafaF/OpencvPosHold/blob/master/autoPositionHold.py)
 
 ```bash
-python autoPositionHold.py -s=true -r=true
+python autoPositionHold.py -s -r -d
 ```
 
-```-s=true``` 
+```-s``` 
 significa que conectará para **simulação**.
 
-```-r=true``` 
-deve ou não **gravar captura de video**.
+```-r``` 
+deve **gravar captura de video**.
 
-## **Conectar no SITL**
+```-d``` 
+mostrar o **display**.
+
+Para ajuda 
+```bash
+python autoPositionHold.py --help
+```
+
+<details>
+<summary>Obsoleto</summary>
+<br>
+Conectar no SITL
 
 ```python
 vehicle = connect('tcp:127.0.0.1:5760', wait_ready=True)
 ```
 
 > Colocar o valor da porta que foi aberta no lugar do "5760"
+</details>
 
----
 
-# [PyMavlink](https://github.com/ArduPilot/pymavlink)
+___
 
+# Referências
+
+<details>
+<summary><a href="https://github.com/ArduPilot/pymavlink">PyMavlink</a></summary>
+<br>
 Esta é a bibliotéca em python para se comunicar com a controladora através do protocolo mavlink.
 
 Links uteis:
@@ -80,3 +96,18 @@ Links uteis:
   - [Playlist com alguns exemplos](https://www.youtube.com/playlist?list=PLy9nLDKxDN68cwdt5EznyAul6R8mUSNou)
   - [Exemplos bem documentados de funções básicas](https://www.ardusub.com/developers/pymavlink.html)
 - [Descrição mensagem de controle do drone](https://ardupilot.org/dev/docs/copter-commands-in-guided-mode.html#movement-command-details)
+
+</details>
+
+# April tag
+* Original
+  * [Github do projeto antigo (ultima atualização em 2018)](https://github.com/swatbotics/apriltag)
+    * [Bindings em python](https://github.com/swatbotics/apriltag/blob/master/python/apriltag.py)
+  * [Referencia sobre as familias](https://www.ssontech.com/docs/SynthEyesUM_files/Choosing_an_AprilTag.html)
+  * [Exemplo de implementação em python](https://pyimagesearch.com/2020/11/02/apriltag-with-python/)
+  ___
+* Pupil Labs
+  * [Github do projeto](https://github.com/pupil-labs/apriltags)
+    * [Bindings](https://github.com/pupil-labs/apriltags/blob/main/src/pupil_apriltags/bindings.py)
+  * [Documentação da API](https://pupil-apriltags.readthedocs.io/en/stable/index.html)
+  * [Exemplo do stack overflow de estimação de pose](https://stackoverflow.com/questions/59044973/how-do-i-draw-a-line-indicating-the-orientation-of-an-apriltag)
