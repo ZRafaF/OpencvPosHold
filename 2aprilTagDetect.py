@@ -145,6 +145,7 @@ fps = FPS().start()
 
 
 while True:
+    print("")
     frame = vs.read()
     frame = imutils.resize(frame, width=CAP_WIDTH)
 
@@ -155,8 +156,8 @@ while True:
     currentTime= time.time()
     fps = 1.0 / (currentTime - lastTime)
     lastTime = currentTime
-
-    print(f"fps: {fps}")
+    fps = round(fps, 1)
+    #print(f"fps: {fps}")
 
     cv2.putText(
             frame,
@@ -174,7 +175,7 @@ while True:
     
 
 
-    print("[INFO] {} total AprilTags detected".format(len(results)))
+    print(f"tags:{format(len(results))} fps:{fps}", end = '')
     
     """
     tag.id,
@@ -223,6 +224,7 @@ while True:
             2,                      # Grossura
             cv2.LINE_AA
         )
+        print(f" id: {id}", end = '')
         pose, e0, e1 = detector.detection_pose(
             r,
             cam_params,
