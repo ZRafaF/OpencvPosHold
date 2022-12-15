@@ -81,9 +81,10 @@ ___
 
 # Referências
 
-<details>
+<h2><details>
 <summary><a href="https://github.com/ArduPilot/pymavlink">PyMavlink</a></summary>
-<br>
+<h6><br>
+
 Esta é a bibliotéca em python para se comunicar com a controladora através do protocolo mavlink.
 
 Links uteis:
@@ -96,10 +97,12 @@ Links uteis:
   - [Playlist com alguns exemplos](https://www.youtube.com/playlist?list=PLy9nLDKxDN68cwdt5EznyAul6R8mUSNou)
   - [Exemplos bem documentados de funções básicas](https://www.ardusub.com/developers/pymavlink.html)
 - [Descrição mensagem de controle do drone](https://ardupilot.org/dev/docs/copter-commands-in-guided-mode.html#movement-command-details)
-
 </details>
+    
+<h2><details>
+<summary>April tag</summary>
+<h6><br>
 
-# April tag
 * Original
   * [Github do projeto antigo (ultima atualização em 2018)](https://github.com/swatbotics/apriltag)
     * [Bindings em python](https://github.com/swatbotics/apriltag/blob/master/python/apriltag.py)
@@ -111,3 +114,5 @@ Links uteis:
     * [Bindings](https://github.com/pupil-labs/apriltags/blob/main/src/pupil_apriltags/bindings.py)
   * [Documentação da API](https://pupil-apriltags.readthedocs.io/en/stable/index.html)
   * [Exemplo do stack overflow de estimação de pose](https://stackoverflow.com/questions/59044973/how-do-i-draw-a-line-indicating-the-orientation-of-an-apriltag)
+
+</details>
