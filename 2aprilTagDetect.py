@@ -46,11 +46,17 @@ have_display = parser.parse_args().display
 print(f"ehSimulacao: {ehSimulacao}, recordCamera: {recordCamera}, have_display: {have_display}")
 
 
-    
+calib_data_path = "calib_data/CamParam.npz"
+
+calib_data = np.load(calib_data_path)
 
 # Parametros gerados do script aprilCalibrateCam.py
-cam_params = (630.8669379442165, 630.3123204518172, 335.75042566981904, 227.83332282734318)
+#cam_params = (630.8669379442165, 630.3123204518172, 335.75042566981904, 227.83332282734318)
 
+
+cam_params = calib_data["cameraParams"]
+
+print(f"cam_params: {cam_params}")
 
 
 options = apriltag.DetectorOptions(
@@ -135,9 +141,8 @@ stream = camera.capture_continuous(
     format="bgr",
 	use_video_port=True)
 
-print("aqui")
+# Fechando qualquer aplicativo que esteja utilizando a camera
 camera.close()
-
     
 vs = PiVideoStream().start()
 time.sleep(1.0)
@@ -149,15 +154,12 @@ while True:
     frame = vs.read()
     frame = imutils.resize(frame, width=CAP_WIDTH)
 
-    
-    #ret, frame = cap.read()
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     currentTime= time.time()
     fps = 1.0 / (currentTime - lastTime)
     lastTime = currentTime
     fps = round(fps, 1)
-    #print(f"fps: {fps}")
 
     cv2.putText(
             frame,
@@ -172,18 +174,8 @@ while True:
 
     
     results = detector.detect(gray_frame)
-    
-
 
     print(f"tags:{format(len(results))} fps:{fps}", end = '')
-    
-    """
-    tag.id,
-    tag.hamming,
-    tag.goodness,
-    tag.decision_margin,
-    """
-
 
     
     for r in results:
