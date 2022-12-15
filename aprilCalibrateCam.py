@@ -84,6 +84,7 @@ def main():
         else:
             ipoints.append( corners )
 
+    print("Calibrando")
     flags = (cv2.CALIB_ZERO_TANGENT_DIST |
              cv2.CALIB_FIX_K1 |
              cv2.CALIB_FIX_K2 |
