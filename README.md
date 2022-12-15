@@ -81,9 +81,8 @@ ___
 
 # Referências
 
-<h2><details>
+<details>
 <summary><a href="https://github.com/ArduPilot/pymavlink">PyMavlink</a></summary>
-<h6><br>
 
 Esta é a bibliotéca em python para se comunicar com a controladora através do protocolo mavlink.
 
@@ -99,9 +98,8 @@ Links uteis:
 - [Descrição mensagem de controle do drone](https://ardupilot.org/dev/docs/copter-commands-in-guided-mode.html#movement-command-details)
 </details>
     
-<h2><details>
+<details>
 <summary>April tag</summary>
-<h6><br>
 
 * Original
   * [Github do projeto antigo (ultima atualização em 2018)](https://github.com/swatbotics/apriltag)
