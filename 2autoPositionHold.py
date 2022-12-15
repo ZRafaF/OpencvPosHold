@@ -28,6 +28,11 @@ MARKER_SIZE = 15  # centimeters
 
 marker_dict = aruco.Dictionary_get(aruco.DICT_4X4_100)
 
+#DICT_APRILTAG_16h5,
+#DICT_APRILTAG_36h11
+#DICT_4X4_100
+
+
 param_markers = aruco.DetectorParameters_create()
 
 cap = cv.VideoCapture(0)
