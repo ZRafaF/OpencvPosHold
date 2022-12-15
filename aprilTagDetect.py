@@ -17,6 +17,8 @@ MARKER_SIZE = 15  # centimeters
 #cap.set(4, CAP_HEIGHT)
 
 
+
+
 parser = ArgumentParser()
 
 parser.add_argument(
@@ -35,9 +37,18 @@ have_display = parser.parse_args().display
 
 print(f"ehSimulacao: {ehSimulacao}, recordCamera: {recordCamera}, have_display: {have_display}")
 
+calib_data_path = "calib_data/CamParam.npz"
+
+calib_data = np.load(calib_data_path)
 
 # Parametros gerados do script aprilCalibrateCam.py
-cam_params = (630.8669379442165, 630.3123204518172, 335.75042566981904, 227.83332282734318)
+#cam_params = (630.8669379442165, 630.3123204518172, 335.75042566981904, 227.83332282734318)
+
+
+cam_params = calib_data["cameraParams"]
+
+print(f"cam_params: {cam_params}")
+
 
 
 

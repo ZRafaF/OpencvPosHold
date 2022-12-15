@@ -3,12 +3,14 @@ import numpy as np
 import cv2
 import argparse
 import glob
+import os
 
 CHESS_BOARD_DIM = (9, 6)
 SQUARE_SIZE = 26 #- mm
 show_detections = True
 
-
+calib_data_path = "./calib_data"
+CHECK_DIR_CALIB = os.path.isdir(calib_data_path)
 
 image_dir_path = "images"
 imageType       = "png"
@@ -17,30 +19,11 @@ filename    = image_dir_path + "/*." + imageType
 images      = glob.glob(filename)
 
 def main():
-
-    """
-    parser = argparse.ArgumentParser(
-        description='calibrate camera intrinsics using OpenCV')
-
-    parser.add_argument('filenames', metavar='IMAGE', nargs='+',
-                        help='input image files')
-
-    parser.add_argument('-r', '--rows', metavar='N', type=int,
-                        required=True,
-                        help='# of chessboard corners in vertical direction')
-
-    parser.add_argument('-c', '--cols', metavar='N', type=int,
-                        required=True,
-                        help='# of chessboard corners in horizontal direction')
-
-    parser.add_argument('-s', '--size', metavar='NUM', type=float, default=1.0,
-                        help='chessboard square size in user-chosen units (should not affect results)')
-
-    parser.add_argument('-d', '--show-detections', action='store_true',
-                        help='show detections in window')
-
-    options = parser.parse_args()
-    """
+    if not CHECK_DIR_CALIB:
+        os.makedirs(calib_data_path)
+        print(f'"{calib_data_path}" Directory is created')
+    else:
+        print(f'"{calib_data_path}" Directory already Exists.')
     cols = CHESS_BOARD_DIM[0]
     rows = CHESS_BOARD_DIM[1]
     
@@ -135,6 +118,16 @@ def main():
     print('pastable into Python:')
     print('  fx, fy, cx, cy = {}'.format(repr(params)))
     print()
+    np.savez(f"{calib_data_path}/CamParam", cameraParams = params)
+
+    print("Carregando data")
+
+    data = np.load(f"{calib_data_path}/CamParam.npz")
+
+    params = data["cameraParams"]
+
+    print(params)
+
 
 if __name__ == '__main__':
     main()

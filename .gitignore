@@ -2,3 +2,4 @@
 images/
 cv2.so
 calib_data/MultiMatrix.npz
+calib_data/CamParam.npz
