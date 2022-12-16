@@ -1,6 +1,9 @@
 from __future__ import print_function
 
 import apriltag
+from pymavlink import mavutil
+from dronekit import connect, VehicleMode, LocationGlobalRelative, APIException
+
 
 import numpy as np
 from argparse import ArgumentParser
@@ -38,15 +41,27 @@ parser.add_argument(
 parser.add_argument(
     "-d","--display",  help="Tem display", default=False, action='store_true'
 )
+parser.add_argument(
+    "-c","--cap",  help="Usar funcao cap.read do opencv ao inves da pycam", default=False, action='store_true'
+)
 
 ehSimulacao = parser.parse_args().simulation
 recordCamera = parser.parse_args().record
 have_display = parser.parse_args().display
+useCap = parser.parse_args().cap
 
-print(f"ehSimulacao: {ehSimulacao}, recordCamera: {recordCamera}, have_display: {have_display}")
+print(f"ehSimulacao: {ehSimulacao}, recordCamera: {recordCamera}, have_display: {have_display}, useCap: {useCap}")
 
-
-    
+def conectarV():
+    if ehSimulacao:
+        return connect("udpin:localhost:14551")
+    else:
+        return connect("/dev/ttyAMA0", baud=baud_rate, wait_ready=True)
+        
+print("Aguardando conexao")
+vehicle = conectarV()
+the_connection = vehicle._master
+print("Conectado!")
 
 # Parametros gerados do script aprilCalibrateCam.py
 cam_params = (630.8669379442165, 630.3123204518172, 335.75042566981904, 227.83332282734318)
@@ -76,6 +91,9 @@ options = apriltag.Detectoroptions(families='tag36h11',
 
 
 detector = apriltag.Detector(options)
+
+baud_rate = 57600
+
 
 lastTime = 0
 
@@ -126,21 +144,35 @@ def _draw_pose(overlay, camera_params, tag_size, pose, z_sign=1):
         cv2.line(overlay, ipoints[i], ipoints[j], (0, 255, 0), 1, 16)
 
 
-camera = PiCamera()
-camera.resolution = (CAP_WIDTH, CAP_HEIGHT)
-camera.framerate = 32
-rawCapture = PiRGBArray(camera, size=(CAP_WIDTH, CAP_HEIGHT))
-stream = camera.capture_continuous(
-    rawCapture, 
-    format="bgr",
-	use_video_port=True)
-    
-vs = PiVideoStream().start()
-time.sleep(1.0)
-fps = FPS().start()
+if not useCap:
+    camera = PiCamera()
+    camera.resolution = (CAP_WIDTH, CAP_HEIGHT)
+    camera.framerate = 32
+    rawCapture = PiRGBArray(camera, size=(CAP_WIDTH, CAP_HEIGHT))
+    stream = camera.capture_continuous(
+        rawCapture, 
+        format="bgr",
+        use_video_port=True)
+
+def getVs():
+    if useCap:
+        cap = cv2.VideoCapture(0)
+        CAP_WIDTH = 640
+        CAP_HEIGHT = 480
+
+        ## comprimindo a captura
+        cap.set(3, CAP_WIDTH)
+        cap.set(4, CAP_HEIGHT)
+        return cap
+    ret = PiVideoStream().start()
+    time.sleep(1.0)
+    return ret
+
+vs = getVs()
 
 
 while True:
+    
     frame = vs.read()
     frame = imutils.resize(frame, width=CAP_WIDTH)
 
