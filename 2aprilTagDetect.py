@@ -49,11 +49,12 @@ useCap = parser.parse_args().cap
 
 print(f"ehSimulacao: {ehSimulacao}, recordCamera: {recordCamera}, have_display: {have_display}, useCap: {useCap}")
 
+baud_rate = 57600
 def conectarV():
     if ehSimulacao:
         return connect("udpin:localhost:14551")
     else:
-        return connect("/dev/ttyAMA0", baud=baud_rate, wait_ready=True)
+        return connect("/dev/ttyAMA0", baud=baud_rate, wait_ready=False)
         
 print("Aguardando conexao")
 vehicle = conectarV()
@@ -63,6 +64,8 @@ print("Conectado!")
 # Parametros gerados do script aprilCalibrateCam.py
 #cam_params = (630.8669379442165, 630.3123204518172, 335.75042566981904, 227.83332282734318)
 
+calib_data_path = "calib_data/CamParam.npz"
+calib_data = np.load(calib_data_path)
 
 cam_params = calib_data["cameraParams"]
 
@@ -93,7 +96,6 @@ options = apriltag.Detectoroptions(families='tag36h11',
 
 detector = apriltag.Detector(options)
 
-baud_rate = 57600
 
 
 lastTime = 0
@@ -154,6 +156,8 @@ if not useCap:
         rawCapture, 
         format="bgr",
         use_video_port=True)
+    camera.close()
+
 
 def getVs():
     if useCap:
@@ -172,10 +176,17 @@ def getVs():
 vs = getVs()
 
 
-while True:
-    
-    frame = vs.read()
+def getFrame(vs_input):
+    if useCap:
+        ret, frame = vs_input.read()
+        return frame
+    frame = vs_input.read()
     frame = imutils.resize(frame, width=CAP_WIDTH)
+    return frame
+
+while True:
+    print("")
+    frame = getFrame(vs)
 
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
