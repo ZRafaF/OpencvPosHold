@@ -20,15 +20,12 @@ import cv2
 CAP_WIDTH = 640
 CAP_HEIGHT = 480
 
-MARKER_SIZE = 15  # centimeters
+MARKER_SIZE = 0.145  # metros
 
-## comprimindo a captura
-#cap.set(3, CAP_WIDTH)
-#cap.set(4, CAP_HEIGHT)
+TARGET_ID = 2
 
 
 parser = ArgumentParser()
-
 parser.add_argument(
     "-s", "--simulation", help="Executar como simulador", default=False, action='store_true'
 )
@@ -221,6 +218,13 @@ while True:
             r,
             cam_params,
             MARKER_SIZE)
+        if id == TARGET_ID:
+            tvec = pose[:3, 3]
+            yTagPos = tvec[0]
+            xTagPos = tvec[1]
+            zTagPos = tvec[2]
+            print(f" x:{xTagPos} y:{yTagPos} z:{zTagPos}", end = '')
+
         if have_display:
             _draw_pose(
                 frame,
