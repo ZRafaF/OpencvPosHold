@@ -182,8 +182,10 @@ def getFrame(vs_input):
     return frame
 
 
-fourcc = cv2.VideoWriter_fourcc('X','V','I','D')
-videoWriter = cv2.VideoWriter('video.avi', fourcc, 30.0, (CAP_WIDTH, CAP_HEIGHT))
+#fourcc = cv2.VideoWriter_fourcc('X','V','I','D')
+#fourcc = cv2.VideoWriter_fourcc('X','2','6','4')
+#videoWriter = cv2.VideoWriter('video.avi', fourcc, 15.0, (CAP_WIDTH, CAP_HEIGHT))
+videoWriter = cv2.VideoWriter('output.mp4', 0x00000021, 15.0, (CAP_WIDTH,CAP_HEIGHT))
 
 while True:
     print("")
