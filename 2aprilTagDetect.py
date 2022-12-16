@@ -162,9 +162,6 @@ if not useCap:
 def getVs():
     if useCap:
         cap = cv2.VideoCapture(0)
-        CAP_WIDTH = 640
-        CAP_HEIGHT = 480
-
         ## comprimindo a captura
         cap.set(3, CAP_WIDTH)
         cap.set(4, CAP_HEIGHT)
@@ -184,6 +181,10 @@ def getFrame(vs_input):
     frame = imutils.resize(frame, width=CAP_WIDTH)
     return frame
 
+
+fourcc = cv2.VideoWriter_fourcc('X','V','I','D')
+videoWriter = cv2.VideoWriter('video.avi', fourcc, 30.0, (CAP_WIDTH, CAP_HEIGHT))
+
 while True:
     print("")
     frame = getFrame(vs)
@@ -195,16 +196,17 @@ while True:
     lastTime = currentTime
     fps = round(fps, 1)
 
-    cv2.putText(
-            frame,
-            f"fps: {fps}",
-            (0,20),
-            cv2.FONT_HERSHEY_PLAIN,
-            0.8,
-            (0, 255, 0),
-            1,
-            cv2.LINE_AA,
-        )
+    if have_display or recordCamera:
+        cv2.putText(
+                frame,
+                f"fps: {fps}",
+                (0,20),
+                cv2.FONT_HERSHEY_PLAIN,
+                0.8,
+                (0, 255, 0),
+                1,
+                cv2.LINE_AA,
+            )
 
     
     results = detector.detect(gray_frame)
@@ -214,42 +216,45 @@ while True:
     
     for r in results:
         id = r.tag_id
-        # extract the bounding box (x, y)-coordinates for the AprilTag
-        # and convert each of the (x, y)-coordinate pairs to integers
-        (ptA, ptB, ptC, ptD) = r.corners
-        ptB = (int(ptB[0]), int(ptB[1]))
-        ptC = (int(ptC[0]), int(ptC[1]))
-        ptD = (int(ptD[0]), int(ptD[1]))
-        ptA = (int(ptA[0]), int(ptA[1]))
-        # draw the bounding box of the AprilTag detection
-        cv2.line(frame, ptA, ptB, (0, 255, 0), 2)
-        cv2.line(frame, ptB, ptC, (0, 255, 0), 2)
-        cv2.line(frame, ptC, ptD, (0, 255, 0), 2)
-        cv2.line(frame, ptD, ptA, (0, 255, 0), 2)
-        # draw the center (x, y)-coordinates of the AprilTag
-        (cX, cY) = (int(r.center[0]), int(r.center[1]))
-        cv2.circle(frame, (cX, cY), 5, (0, 0, 255), -1)
-        # draw the tag family on the image
         tagFamily = r.tag_family.decode("utf-8")
-        cv2.putText(
-            frame, 
-            tagFamily, 
-            (ptA[0], ptA[1] - 15),
-            cv2.FONT_HERSHEY_PLAIN, 
-            1.5, 
-            (0, 255, 0), 
-            2)
         
-        cv2.putText(
-            frame,                  # frame
-            f"id: {id}",            # Texto
-            ptD,                    # Posição
-            cv2.FONT_HERSHEY_PLAIN, # Fonte
-            1.2,                      # Tamanho
-            (0, 0, 255),            # Cor
-            2,                      # Grossura
-            cv2.LINE_AA
-        )
+        if have_display or recordCamera:
+            # extract the bounding box (x, y)-coordinates for the AprilTag
+            # and convert each of the (x, y)-coordinate pairs to integers
+            (ptA, ptB, ptC, ptD) = r.corners
+            ptB = (int(ptB[0]), int(ptB[1]))
+            ptC = (int(ptC[0]), int(ptC[1]))
+            ptD = (int(ptD[0]), int(ptD[1]))
+            ptA = (int(ptA[0]), int(ptA[1]))
+            # draw the bounding box of the AprilTag detection
+            cv2.line(frame, ptA, ptB, (0, 255, 0), 2)
+            cv2.line(frame, ptB, ptC, (0, 255, 0), 2)
+            cv2.line(frame, ptC, ptD, (0, 255, 0), 2)
+            cv2.line(frame, ptD, ptA, (0, 255, 0), 2)
+            # draw the center (x, y)-coordinates of the AprilTag
+            (cX, cY) = (int(r.center[0]), int(r.center[1]))
+            cv2.circle(frame, (cX, cY), 5, (0, 0, 255), -1)
+            # draw the tag family on the image
+            
+            cv2.putText(
+                frame, 
+                tagFamily, 
+                (ptA[0], ptA[1] - 15),
+                cv2.FONT_HERSHEY_PLAIN, 
+                1.5, 
+                (0, 255, 0), 
+                2
+            )
+            cv2.putText(
+                frame,                  # frame
+                f"id: {id}",            # Texto
+                ptD,                    # Posição
+                cv2.FONT_HERSHEY_PLAIN, # Fonte
+                1.2,                      # Tamanho
+                (0, 0, 255),            # Cor
+                2,                      # Grossura
+                cv2.LINE_AA
+            )
         print(f" id: {id}", end = '')
         pose, e0, e1 = detector.detection_pose(
             r,
@@ -268,8 +273,10 @@ while True:
                 cam_params,
                 MARKER_SIZE,
                 pose)
+    if recordCamera:
+        videoWriter.write(frame)
 
-    if have_display:
+    if have_display or recordCamera:
         # show the output image after AprilTag detection
         cv2.imshow("Image", frame)    
         
