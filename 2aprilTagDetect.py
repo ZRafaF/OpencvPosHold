@@ -276,7 +276,7 @@ while True:
     if recordCamera:
         videoWriter.write(frame)
 
-    if have_display or recordCamera:
+    if have_display:
         # show the output image after AprilTag detection
         cv2.imshow("Image", frame)    
         
