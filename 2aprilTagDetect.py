@@ -5,13 +5,17 @@ from pymavlink import mavutil
 from dronekit import connect, VehicleMode, LocationGlobalRelative, APIException
 
 
+from imutils.video.pivideostream import PiVideoStream
+
+from picamera.array import PiRGBArray
+from picamera import PiCamera
+
+
+
 import numpy as np
 from argparse import ArgumentParser
 
-from imutils.video.pivideostream import PiVideoStream
-from imutils.video import FPS
-from picamera.array import PiRGBArray
-from picamera import PiCamera
+
 import argparse
 import imutils
 import time
@@ -49,6 +53,9 @@ useCap = parser.parse_args().cap
 
 print(f"ehSimulacao: {ehSimulacao}, recordCamera: {recordCamera}, have_display: {have_display}, useCap: {useCap}")
 
+
+
+
 baud_rate = 57600
 def conectarV():
     if ehSimulacao:
@@ -62,12 +69,11 @@ the_connection = vehicle._master
 print("Conectado!")
 
 # Parametros gerados do script aprilCalibrateCam.py
-#cam_params = (630.8669379442165, 630.3123204518172, 335.75042566981904, 227.83332282734318)
+cam_params = (630.8669379442165, 630.3123204518172, 335.75042566981904, 227.83332282734318)
 
-calib_data_path = "calib_data/CamParam.npz"
-calib_data = np.load(calib_data_path)
-
-cam_params = calib_data["cameraParams"]
+#calib_data_path = "calib_data/CamParam.npz"
+#calib_data = np.load(calib_data_path)
+#cam_params = calib_data["cameraParams"]
 
 print(f"cam_params: {cam_params}")
 
@@ -189,6 +195,78 @@ fourcc = cv2.VideoWriter_fourcc('X','V','I','D')
 
 videoWriter = cv2.VideoWriter('video.avi', fourcc, 15.0, (CAP_WIDTH, CAP_HEIGHT))
 
+""" MASKS
+
+    Use Position : 0b110111111000 / 0x0DF8 / 3576 (decimal)
+
+    Use Velocity : 0b110111000111 / 0x0DC7 / 3527 (decimal)
+
+    Use Acceleration : 0b110000111000 / 0x0C38 / 3128 (decimal)
+
+    Use Pos+Vel : 0b110111000000 / 0x0DC0 / 3520 (decimal)
+
+    Use Pos+Vel+Accel : 0b110000000000 / 0x0C00 / 3072 (decimal)
+
+    Use Yaw : 0b100111111111 / 0x09FF / 2559 (decimal)
+
+    Use Yaw Rate : 0b010111111111 / 0x05FF / 1535 (decimal)
+"""
+
+type_mask = int(0b110111111000)  # mascara para usar apenas a velocidade
+
+def stayStill():
+    if vehicle.mode.name != "GUIDED":
+        return
+    the_connection.mav.send(
+		mavutil.mavlink.MAVLink_set_position_target_local_ned_message(
+            10, the_connection.target_system,
+            the_connection.target_component, 
+            mavutil.mavlink.MAV_FRAME_BODY_OFFSET_NED, 
+            type_mask, 
+            0,  #X Position in meters (positive is forward or North)
+            0,  #Y Position in meters (positive is right or East)
+            0,  #Z Position in meters (positive is down)
+            0, #X velocity in m/s (positive is forward or North)
+            0,  #Y velocity in m/s (positive is right or East)
+            0,  #Z velocity in m/s (positive is down)
+            0,  #X acceleration in m/s/s (positive is forward or North)
+            0,  #Y acceleration in m/s/s (positive is right or East)
+            0,  #Z acceleration in m/s/s (positive is down)
+            0,  #yaw or heading in radians (0 is forward or North)
+            0)) #yaw rate in rad/s
+    
+
+def processAutoFlight(deltaX, deltaY, deltaZ):
+    if not vehicle.armed:
+        print("Nao armado")
+        print(vehicle.mode.name)
+        if False: #wasArmed:
+            print("desligando")
+            endProgramAndShutDown()
+        return
+    wasArmed = True
+
+    if vehicle.mode.name != "GUIDED":
+        return
+    the_connection.mav.send(
+		mavutil.mavlink.MAVLink_set_position_target_local_ned_message(
+            10, the_connection.target_system,
+            the_connection.target_component, 
+            mavutil.mavlink.MAV_FRAME_LOCAL_OFFSET_NED, 
+            type_mask, 
+            deltaX,  #X Position in meters (positive is forward or North)
+            deltaY,  #Y Position in meters (positive is right or East)
+            0,  #Z Position in meters (positive is down)
+            0, #X velocity in m/s (positive is forward or North)
+            0,  #Y velocity in m/s (positive is right or East)
+            0,  #Z velocity in m/s (positive is down)
+            0,  #X acceleration in m/s/s (positive is forward or North)
+            0,  #Y acceleration in m/s/s (positive is right or East)
+            0,  #Z acceleration in m/s/s (positive is down)
+            0,  #yaw or heading in radians (0 is forward or North)
+            0)) #yaw rate in rad/s
+
+
 while True:
     print("")
     frame = getFrame(vs)
@@ -270,6 +348,7 @@ while True:
             xTagPos = tvec[1]
             zTagPos = tvec[2]
             print(f" x:{xTagPos} y:{yTagPos} z:{zTagPos}", end = '')
+            processAutoFlight(xTagPos, yTagPos, zTagPos)
 
         if have_display:
             _draw_pose(
