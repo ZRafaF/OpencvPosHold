@@ -13,8 +13,10 @@ CAP_HEIGHT = 480
 MARKER_SIZE = 15  # centimeters
 
 ## comprimindo a captura
-cap.set(3, CAP_WIDTH)
-cap.set(4, CAP_HEIGHT)
+#cap.set(3, CAP_WIDTH)
+#cap.set(4, CAP_HEIGHT)
+
+
 
 
 parser = ArgumentParser()
@@ -35,9 +37,18 @@ have_display = parser.parse_args().display
 
 print(f"ehSimulacao: {ehSimulacao}, recordCamera: {recordCamera}, have_display: {have_display}")
 
+calib_data_path = "calib_data/CamParam.npz"
+
+calib_data = np.load(calib_data_path)
 
 # Parametros gerados do script aprilCalibrateCam.py
-cam_params = (630.8669379442165, 630.3123204518172, 335.75042566981904, 227.83332282734318)
+#cam_params = (630.8669379442165, 630.3123204518172, 335.75042566981904, 227.83332282734318)
+
+
+cam_params = calib_data["cameraParams"]
+
+print(f"cam_params: {cam_params}")
+
 
 
 
@@ -122,7 +133,6 @@ while True:
     fps = 1.0 / (currentTime - lastTime)
     lastTime = currentTime
 
-    print(f"fps: {fps}")
 
     cv2.putText(
             frame,
@@ -140,7 +150,7 @@ while True:
     
 
 
-    print("[INFO] {} total AprilTags detected".format(len(results)))
+    print(f"tags: {format(len(results))}  fps: {fps}")
     
     """
     tag.id,

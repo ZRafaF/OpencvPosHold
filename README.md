@@ -114,3 +114,5 @@ Links uteis:
   * [Exemplo do stack overflow de estimação de pose](https://stackoverflow.com/questions/59044973/how-do-i-draw-a-line-indicating-the-orientation-of-an-apriltag)
 
 </details>
+
+[Multithreading na raspicam](https://pyimagesearch.com/2015/12/28/increasing-raspberry-pi-fps-with-python-and-opencv/)

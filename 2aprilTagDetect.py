@@ -23,15 +23,12 @@ import cv2
 CAP_WIDTH = 640
 CAP_HEIGHT = 480
 
-MARKER_SIZE = 15  # centimeters
+MARKER_SIZE = 0.145  # metros
 
-## comprimindo a captura
-#cap.set(3, CAP_WIDTH)
-#cap.set(4, CAP_HEIGHT)
+TARGET_ID = 2
 
 
 parser = ArgumentParser()
-
 parser.add_argument(
     "-s", "--simulation", help="Executar como simulador", default=False, action='store_true'
 )
@@ -64,8 +61,12 @@ the_connection = vehicle._master
 print("Conectado!")
 
 # Parametros gerados do script aprilCalibrateCam.py
-cam_params = (630.8669379442165, 630.3123204518172, 335.75042566981904, 227.83332282734318)
+#cam_params = (630.8669379442165, 630.3123204518172, 335.75042566981904, 227.83332282734318)
 
+
+cam_params = calib_data["cameraParams"]
+
+print(f"cam_params: {cam_params}")
 
 
 options = apriltag.DetectorOptions(
@@ -176,15 +177,12 @@ while True:
     frame = vs.read()
     frame = imutils.resize(frame, width=CAP_WIDTH)
 
-    
-    #ret, frame = cap.read()
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     currentTime= time.time()
     fps = 1.0 / (currentTime - lastTime)
     lastTime = currentTime
-
-    print(f"fps: {fps}")
+    fps = round(fps, 1)
 
     cv2.putText(
             frame,
@@ -199,18 +197,8 @@ while True:
 
     
     results = detector.detect(gray_frame)
-    
 
-
-    print("[INFO] {} total AprilTags detected".format(len(results)))
-    
-    """
-    tag.id,
-    tag.hamming,
-    tag.goodness,
-    tag.decision_margin,
-    """
-
+    print(f"tags:{format(len(results))} fps:{fps}", end = '')
 
     
     for r in results:
@@ -251,10 +239,18 @@ while True:
             2,                      # Grossura
             cv2.LINE_AA
         )
+        print(f" id: {id}", end = '')
         pose, e0, e1 = detector.detection_pose(
             r,
             cam_params,
             MARKER_SIZE)
+        if id == TARGET_ID:
+            tvec = pose[:3, 3]
+            yTagPos = tvec[0]
+            xTagPos = tvec[1]
+            zTagPos = tvec[2]
+            print(f" x:{xTagPos} y:{yTagPos} z:{zTagPos}", end = '')
+
         if have_display:
             _draw_pose(
                 frame,
@@ -269,3 +265,8 @@ while True:
         key = cv2.waitKey(1)
         if key == ord("q"):
             break
+
+cv2.destroyAllWindows()
+stream.close()
+rawCapture.close()
+camera.close()
