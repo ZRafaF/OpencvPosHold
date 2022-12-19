@@ -193,7 +193,7 @@ def getFrame(vs_input):
 fourcc = cv2.VideoWriter_fourcc('X','V','I','D')
 #fourcc = cv2.VideoWriter_fourcc('I','4','2','0')
 
-videoWriter = cv2.VideoWriter('video.avi', fourcc, 15.0, (CAP_WIDTH, CAP_HEIGHT))
+videoWriter = cv2.VideoWriter('video.avi', fourcc, 10.0, (CAP_WIDTH, CAP_HEIGHT))
 
 """ MASKS
 
