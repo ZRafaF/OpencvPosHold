@@ -188,6 +188,7 @@ def getVs():
     time.sleep(1.0)
     return ret
 
+# Video stream
 vs = getVs()
 
 
@@ -249,15 +250,6 @@ def stayStill():
     
 
 def processAutoFlight(deltaX, deltaY, deltaZ):
-    if not vehicle.armed:
-        print("Nao armado")
-        print(vehicle.mode.name)
-        if False: #wasArmed:
-            print("desligando")
-            endProgramAndShutDown()
-        return
-    wasArmed = True
-
     if vehicle.mode.name != "GUIDED":
         return
     the_connection.mav.send(
@@ -286,9 +278,9 @@ def goToCoordinate(targetCoordinate):
             the_connection.target_system,
             the_connection.target_component, 
             mavutil.mavlink.MAV_FRAME_GLOBAL_TERRAIN_ALT_INT,   # alt is in meters above terrain
-            int(0b110111111000),                                               # Use Position : 0b110111111000 / 0x0DF8 / 3576 (decimal)
-            int(targetCoordinate.lat * 1e7),                         # Latitude * 1e7
-            int(targetCoordinate.lon * 1e7),                         # Longitude * 1e7
+            int(0b110111111000),                                # Use Position : 0b110111111000 / 0x0DF8 / 3576 (decimal)
+            int(targetCoordinate.lat * 1e7),                    # Latitude * 1e7
+            int(targetCoordinate.lon * 1e7),                    # Longitude * 1e7
             targetCoordinate.alt,                               # Alt in meters
             0, #X velocity in m/s (positive is forward or North)
             0,  #Y velocity in m/s (positive is right or East)
@@ -300,7 +292,9 @@ def goToCoordinate(targetCoordinate):
             0)) #yaw rate in rad/s
 
 
-def getTargetCoordinate(location, deltaX, deltaY):
+cameraRotationInDegrees = 0
+
+def getTargetCoordinate(location, heading, deltaX, deltaY):
     #Position, decimal degrees
     lat = location.lat
     lon = location.lon
@@ -308,9 +302,20 @@ def getTargetCoordinate(location, deltaX, deltaY):
     #Earth’s radius, sphere
     R=6378137
 
-    #offsets in meters
-    dn = deltaY
-    de = deltaX
+    hdgInRadians = math.radians(heading + cameraRotationInDegrees)
+
+
+    # Calculando a posição relativa do alvo com referencia ao heading
+    yAdjusted = (math.cos(hdgInRadians) * deltaY)
+    yAdjusted = yAdjusted + (math.sin(hdgInRadians) * deltaX)
+
+    xAdjusted = (math.sin(hdgInRadians) * deltaY)
+    xAdjusted = xAdjusted + (math.cos(hdgInRadians) * deltaX)
+
+
+    dn = yAdjusted
+    de = xAdjusted
+
 
     #Coordinate offsets in radians
     dLat = dn/R
@@ -322,7 +327,7 @@ def getTargetCoordinate(location, deltaX, deltaY):
 
     return Coordinate(latO, lonO, location.alt)
 
-hasFoundTarget = False
+hasFoundTargetOnce = False
 estimatedTargetCoordinate = Coordinate(vehicle.location.global_relative_frame.lat,vehicle.location.global_relative_frame.lon,vehicle.location.global_relative_frame.alt)
 
 
@@ -338,7 +343,8 @@ while True:
     fps = round(fps, 1)
 
     droneLocation = vehicle.location.global_relative_frame
-    print(f"Target:{estimatedTargetCoordinate}", end = '')
+    droneHeading = vehicle.heading
+    print(f"Target: lat{estimatedTargetCoordinate.lat} lon{estimatedTargetCoordinate.lon}", end = '')
 
 
     if have_display or recordCamera:
@@ -396,7 +402,7 @@ while True:
                 f"id: {id}",            # Texto
                 ptD,                    # Posição
                 cv2.FONT_HERSHEY_PLAIN, # Fonte
-                1.2,                      # Tamanho
+                1.2,                    # Tamanho
                 (0, 0, 255),            # Cor
                 2,                      # Grossura
                 cv2.LINE_AA
@@ -407,14 +413,14 @@ while True:
             cam_params,
             MARKER_SIZE)
         if id == TARGET_ID:
-            hasFoundTarget = True
+            hasFoundTargetOnce = True
             tvec = pose[:3, 3]
             yTagPos = tvec[0]
             xTagPos = tvec[1]
             zTagPos = tvec[2]
             print(f" x:{xTagPos} y:{yTagPos} z:{zTagPos}", end = '')
-            estimatedTargetCoordinate = getTargetCoordinate(droneLocation, xTagPos, yTagPos)
-            processAutoFlight(xTagPos, yTagPos, zTagPos)
+            estimatedTargetCoordinate = getTargetCoordinate(droneLocation, droneHeading, xTagPos, yTagPos)
+            #processAutoFlight(xTagPos, yTagPos, zTagPos)
             isTargetOnFrame = True
 
         if have_display:
@@ -425,7 +431,7 @@ while True:
                 pose)
     if recordCamera:
         videoWriter.write(frame)
-    if isTargetOnFrame == False and hasFoundTarget:
+    if hasFoundTargetOnce:
         goToCoordinate(estimatedTargetCoordinate)
 
     if have_display:
